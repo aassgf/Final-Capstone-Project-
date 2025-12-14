@@ -12,10 +12,7 @@ st.set_page_config(
 )
 
 st.title("📊 RFM Customer Segmentation Dashboard")
-st.caption(
-    "Dashboard analisis segmentasi customer berbasis Recency, Frequency, dan Monetary "
-    "untuk mendukung pengambilan keputusan pemasaran."
-)
+st.caption("Dashboard segmentasi customer berbasis Recency, Frequency, dan Monetary")
 
 # ============================
 # LOAD DATA
@@ -27,7 +24,7 @@ def load_data():
 df = load_data()
 
 # ============================
-# WARNA CLUSTER (SESUAI PERMINTAAN)
+# WARNA CLUSTER
 # ============================
 cluster_colors = {
     0: '#1f77b4',  # Biru
@@ -39,7 +36,7 @@ cluster_colors = {
 # ============================
 # SIDEBAR FILTER
 # ============================
-st.sidebar.header("🔎 Filter Data")
+st.sidebar.header("🔎 Filter Global")
 
 selected_clusters = st.sidebar.multiselect(
     "Pilih Cluster",
@@ -50,173 +47,226 @@ selected_clusters = st.sidebar.multiselect(
 filtered_df = df[df['Cluster'].isin(selected_clusters)]
 
 # ============================
-# METRIC CARDS
+# METRIC GLOBAL
 # ============================
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Total Customer", f"{len(filtered_df):,}")
-col2.metric("Avg Frequency", round(filtered_df['Frequency'].mean(), 2))
-col3.metric("Avg Monetary (£)", round(filtered_df['MonetaryValue'].mean(), 2))
+c1, c2, c3 = st.columns(3)
+c1.metric("Total Customer", f"{len(filtered_df):,}")
+c2.metric("Avg Frequency", round(filtered_df['Frequency'].mean(), 2))
+c3.metric("Avg Monetary (£)", round(filtered_df['MonetaryValue'].mean(), 2))
 
 st.divider()
 
 # ============================
-# BAR CHART – JUMLAH CUSTOMER
+# TABS
 # ============================
-st.subheader("📊 Jumlah Customer per Cluster")
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📄 Dataset",
+    "📊 Jumlah Cluster",
+    "🎯 Sebaran Customer",
+    "🎻 Distribusi RFM",
+    "🧠 Insight Cluster"
+])
 
-cluster_counts = filtered_df['Cluster'].value_counts().sort_index()
+# =========================================================
+# TAB 1 — DATASET
+# =========================================================
+with tab1:
+    st.subheader("📄 Dataset Customer")
+    st.dataframe(filtered_df, use_container_width=True)
 
-fig_bar, ax_bar = plt.subplots(figsize=(8, 5))
-
-bars = ax_bar.bar(
-    cluster_counts.index.astype(str),
-    cluster_counts.values,
-    color=[cluster_colors[c] for c in cluster_counts.index]
-)
-
-ax_bar.set_title("Jumlah Customer per Cluster", fontsize=14, fontweight='bold')
-ax_bar.set_xlabel("Cluster")
-ax_bar.set_ylabel("Jumlah Customer")
-
-for bar in bars:
-    height = bar.get_height()
-    ax_bar.text(
-        bar.get_x() + bar.get_width() / 2,
-        height,
-        f'{int(height)}',
-        ha='center',
-        va='bottom',
-        fontsize=11
+    st.download_button(
+        "⬇️ Download CSV",
+        filtered_df.to_csv(index=False),
+        "rfm_filtered.csv",
+        "text/csv"
     )
 
-st.pyplot(fig_bar)
+# =========================================================
+# TAB 2 — JUMLAH CLUSTER
+# =========================================================
+with tab2:
+    st.subheader("📊 Jumlah Customer per Cluster")
 
-st.divider()
+    cluster_counts = filtered_df['Cluster'].value_counts().sort_index()
 
-# ============================
-# DONUT CHART – PROPORSI
-# ============================
-st.subheader("🍩 Proporsi Customer per Cluster")
-
-fig_pie, ax_pie = plt.subplots(figsize=(6, 6))
-ax_pie.pie(
-    cluster_counts.values,
-    labels=[f"Cluster {c}" for c in cluster_counts.index],
-    autopct='%1.1f%%',
-    startangle=120,
-    colors=[cluster_colors[c] for c in cluster_counts.index],
-    wedgeprops={'edgecolor': 'white'}
-)
-
-centre_circle = plt.Circle((0, 0), 0.65, fc='white')
-ax_pie.add_artist(centre_circle)
-
-ax_pie.set_title("Distribusi Customer per Cluster", fontsize=13, fontweight='bold')
-st.pyplot(fig_pie)
-
-st.divider()
-
-# ============================
-# SCATTER 2D
-# ============================
-st.subheader("🎯 Sebaran Customer (Recency vs Monetary)")
-
-fig_scatter, ax_scatter = plt.subplots(figsize=(8, 5))
-
-for c in cluster_counts.index:
-    subset = filtered_df[filtered_df['Cluster'] == c]
-    ax_scatter.scatter(
-        subset['Recency'],
-        subset['MonetaryValue'],
-        label=f'Cluster {c}',
-        color=cluster_colors[c],
-        alpha=0.75,
-        s=60,
-        edgecolor='white'
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(
+        cluster_counts.index.astype(str),
+        cluster_counts.values,
+        color=[cluster_colors[c] for c in cluster_counts.index]
     )
 
-ax_scatter.set_xlabel("Recency (days)")
-ax_scatter.set_ylabel("Monetary Value (£)")
-ax_scatter.set_title("Customer Segmentation (Recency vs Monetary)")
-ax_scatter.legend(title="Cluster")
+    for bar in bars:
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{int(bar.get_height())}",
+            ha='center',
+            va='bottom'
+        )
 
-st.pyplot(fig_scatter)
+    ax.set_xlabel("Cluster")
+    ax.set_ylabel("Jumlah Customer")
+    ax.set_title("Jumlah Customer per Cluster")
 
-st.divider()
+    st.pyplot(fig)
 
-# ============================
-# VIOLIN PLOTS
-# ============================
-st.subheader("🎻 Distribusi RFM per Cluster")
+    st.info(
+        "Cluster dengan jumlah customer terbesar merupakan segmen dominan "
+        "yang memerlukan perhatian khusus dalam strategi pemasaran."
+    )
 
-fig_violin, ax = plt.subplots(1, 3, figsize=(16, 4))
+# =========================================================
+# TAB 3 — SEBARAN CUSTOMER
+# =========================================================
+with tab3:
+    st.subheader("🎯 Sebaran Customer (Recency vs Monetary)")
 
-sns.violinplot(
-    data=filtered_df, x='Cluster', y='Recency',
-    palette=cluster_colors, inner='quartile', ax=ax[0]
-)
-ax[0].set_title("Recency")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for c in cluster_colors:
+        subset = filtered_df[filtered_df['Cluster'] == c]
+        ax.scatter(
+            subset['Recency'],
+            subset['MonetaryValue'],
+            label=f"Cluster {c}",
+            color=cluster_colors[c],
+            alpha=0.7,
+            s=60
+        )
 
-sns.violinplot(
-    data=filtered_df, x='Cluster', y='Frequency',
-    palette=cluster_colors, inner='quartile', ax=ax[1]
-)
-ax[1].set_title("Frequency")
+    ax.set_xlabel("Recency (days)")
+    ax.set_ylabel("Monetary Value (£)")
+    ax.set_title("Customer Segmentation Scatter")
+    ax.legend()
 
-sns.violinplot(
-    data=filtered_df, x='Cluster', y='MonetaryValue',
-    palette=cluster_colors, inner='quartile', ax=ax[2]
-)
-ax[2].set_title("Monetary Value")
+    st.pyplot(fig)
 
-st.pyplot(fig_violin)
+    st.success(
+        "Customer dengan Recency rendah dan Monetary tinggi "
+        "merupakan pelanggan bernilai tinggi."
+    )
 
-st.divider()
+# =========================================================
+# TAB 4 — DISTRIBUSI RFM
+# =========================================================
+with tab4:
+    st.subheader("🎻 Distribusi RFM per Cluster")
 
-# ============================
-# INSIGHT CLUSTER
-# ============================
-st.subheader("🧠 Penjelasan & Insight Cluster RFM")
+    fig, ax = plt.subplots(1, 3, figsize=(16, 4))
 
-with st.expander("🔵 Cluster 0 – Lowest Customers"):
+    sns.violinplot(
+        data=filtered_df,
+        x='Cluster', y='Recency',
+        hue='Cluster',
+        palette=cluster_colors,
+        legend=False,
+        ax=ax[0]
+    )
+    ax[0].set_title("Recency")
+
+    sns.violinplot(
+        data=filtered_df,
+        x='Cluster', y='Frequency',
+        hue='Cluster',
+        palette=cluster_colors,
+        legend=False,
+        ax=ax[1]
+    )
+    ax[1].set_title("Frequency")
+
+    sns.violinplot(
+        data=filtered_df,
+        x='Cluster', y='MonetaryValue',
+        hue='Cluster',
+        palette=cluster_colors,
+        legend=False,
+        ax=ax[2]
+    )
+    ax[2].set_title("Monetary Value")
+
+    st.pyplot(fig)
+
+# =========================================================
+# TAB 5 — INSIGHT CLUSTER
+# =========================================================
+with tab5:
+    st.subheader("🧠 Insight & Strategi Cluster RFM")
+
     st.markdown("""
-- Nilai belanja dan frekuensi rendah  
-- Lama tidak bertransaksi  
-**Strategi:** re-engagement, diskon agresif, survei churn
-""")
+### 📌 Ringkasan Segmentasi
+- **🔵 Cluster 0 – Lowest Customers**: Aktifkan kembali pelanggan yang kurang aktif  
+- **🟠 Cluster 1 – Best Customers**: Berikan reward untuk pelanggan paling loyal  
+- **🟢 Cluster 2 – Potential Customers**: Kembangkan pelanggan baru atau berpotensi  
+- **🔴 Cluster 3 – Active Customers**: Pertahankan pelanggan aktif dan bernilai tinggi  
+    """)
 
-with st.expander("🟠 Cluster 1 – Best Customers"):
-    st.markdown("""
-- Nilai belanja tertinggi  
-- Sangat loyal  
-**Strategi:** VIP treatment, reward eksklusif, referral
-""")
+    st.divider()
 
-with st.expander("🟢 Cluster 2 – Potential Customers"):
-    st.markdown("""
-- Pelanggan baru / nilai kecil  
-- Potensi tumbuh  
-**Strategi:** welcome voucher, edukasi produk, upselling ringan
-""")
+    # =======================
+    # CLUSTER 0
+    # =======================
+    with st.expander("🔵 Cluster 0 – Lowest Customers"):
+        st.markdown("""
+**Penjelasan:**  
+Cluster ini berisi pelanggan dengan nilai belanja rendah, jarang melakukan transaksi, dan sudah lama tidak berbelanja.  
+Mereka memiliki risiko churn yang tinggi sehingga perlu strategi khusus untuk membangkitkan kembali minat mereka.
 
-with st.expander("🔴 Cluster 3 – Active Customers"):
-    st.markdown("""
-- Aktif bertransaksi  
-- Nilai menengah  
-**Strategi:** loyalty tier, promo eksklusif, personalisasi
-""")
+**Aksi yang Disarankan:**  
+1. Kampanye *re-engagement* melalui email, WhatsApp, atau notifikasi  
+2. Promo agresif seperti diskon besar atau gratis ongkir  
+3. Rekomendasi produk berdasarkan pembelian terakhir  
+4. Survei singkat untuk mengetahui alasan pelanggan tidak kembali  
+        """)
 
-st.divider()
+    # =======================
+    # CLUSTER 1
+    # =======================
+    with st.expander("🟠 Cluster 1 – Best Customers"):
+        st.markdown("""
+**Penjelasan:**  
+Cluster ini merupakan pelanggan dengan nilai belanja tertinggi, frekuensi pembelian tinggi, dan aktivitas transaksi terbaru.  
+Mereka adalah kontributor utama pendapatan dan aset paling berharga bagi bisnis.
 
-# ============================
-# DATA TABLE
-# ============================
-st.subheader("📄 Data Customer (Sample)")
-st.dataframe(filtered_df.head(50), use_container_width=True)
+**Aksi yang Disarankan:**  
+1. VIP treatment (akses awal produk baru, customer service prioritas)  
+2. Hadiah eksklusif, bonus poin, atau cashback premium  
+3. Program referral karena mereka cenderung merekomendasikan brand  
+4. Komunikasi personal untuk menjaga loyalitas jangka panjang  
+        """)
 
-st.caption(
-    "📌 Insight Utama: Segmentasi RFM membantu bisnis memahami perilaku pelanggan "
-    "dan menyusun strategi pemasaran yang lebih tepat sasaran."
-)
+    # =======================
+    # CLUSTER 2
+    # =======================
+    with st.expander("🟢 Cluster 2 – Potential Customers"):
+        st.markdown("""
+**Penjelasan:**  
+Cluster ini terdiri dari pelanggan baru atau pelanggan dengan nilai belanja masih kecil,  
+namun menunjukkan aktivitas transaksi terbaru dan memiliki potensi berkembang.
 
+**Aksi yang Disarankan:**  
+1. Welcome voucher atau diskon pembelian kedua  
+2. Edukasi produk dan rekomendasi awal  
+3. Upselling ringan untuk meningkatkan nilai belanja  
+4. Follow-up pasca pembelian untuk membangun engagement  
+        """)
+
+    # =======================
+    # CLUSTER 3
+    # =======================
+    with st.expander("🔴 Cluster 3 – Active Customers"):
+        st.markdown("""
+**Penjelasan:**  
+Cluster ini berisi pelanggan yang cukup sering berbelanja, nilai belanja menengah, dan masih aktif.  
+Mereka merupakan pelanggan inti yang dapat ditingkatkan menjadi pelanggan loyal bernilai tinggi.
+
+**Aksi yang Disarankan:**  
+1. Program loyalitas bertingkat (misal: Silver → Gold)  
+2. Promo eksklusif atau bundling produk  
+3. Personalisasi rekomendasi berdasarkan preferensi pelanggan  
+4. Penawaran rutin agar pelanggan tetap aktif dan engaged  
+        """)
+
+    st.info(
+        "💡 Insight Utama: Segmentasi RFM membantu bisnis memahami perilaku pelanggan "
+        "dan menyusun strategi pemasaran yang lebih tepat sasaran untuk setiap segmen."
+    )
