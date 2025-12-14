@@ -190,74 +190,85 @@ with tab4:
 # TAB 5 — INSIGHT CLUSTER
 # =========================================================
 with tab5:
-    st.subheader("🧠 Insight & Strategi Cluster RFM")
+    st.subheader("🧠 Penjelasan & Strategi Cluster RFM")
 
     st.markdown("""
-### 📌 Ringkasan Segmentasi
-- **🔵 Cluster 0 – Lowest Customers**: Aktifkan kembali pelanggan yang kurang aktif  
-- **🟠 Cluster 1 – Best Customers**: Berikan reward untuk pelanggan paling loyal  
-- **🟢 Cluster 2 – Potential Customers**: Kembangkan pelanggan baru atau berpotensi  
-- **🔴 Cluster 3 – Active Customers**: Pertahankan pelanggan aktif dan bernilai tinggi  
+### 📌 Ringkasan Cluster
+- **🔵 Cluster 0 (Biru) – Best Customers**  
+  Berikan reward untuk pelanggan paling loyal  
+
+- **🟠 Cluster 1 (Oranye) – Lowest Customers**  
+  Aktifkan kembali pelanggan yang kurang aktif  
+
+- **🟢 Cluster 2 (Hijau) – Potential Customers**  
+  Kembangkan pelanggan baru atau berpotensi  
+
+- **🔴 Cluster 3 (Merah) – Active Customers**  
+  Pertahankan pelanggan aktif dan bernilai tinggi  
     """)
 
     st.divider()
 
     # =======================
-    # CLUSTER 0
+    # CLUSTER 0 – BEST
     # =======================
-    with st.expander("🔵 Cluster 0 – Lowest Customers"):
+    with st.expander("🔵 Cluster 0 – Best Customers"):
         st.markdown("""
 **Penjelasan:**  
-Cluster ini berisi pelanggan dengan nilai belanja rendah, jarang melakukan transaksi, dan sudah lama tidak berbelanja.  
-Mereka memiliki risiko churn yang tinggi sehingga perlu strategi khusus untuk membangkitkan kembali minat mereka.
+Cluster ini merupakan pelanggan dengan **nilai belanja tertinggi**, **frekuensi pembelian tinggi**,  
+dan **aktivitas transaksi terbaru**. Mereka adalah kontributor terbesar terhadap pendapatan  
+dan merupakan aset paling bernilai bagi bisnis.
 
 **Aksi yang Disarankan:**  
-1. Kampanye *re-engagement* melalui email, WhatsApp, atau notifikasi  
+1. VIP treatment (akses awal produk baru, customer service prioritas)  
+2. Hadiah eksklusif, bonus poin, atau cashback premium  
+3. Program referral karena mereka cenderung merekomendasikan brand  
+4. Komunikasi yang sangat personal untuk menjaga loyalitas  
+        """)
+
+    # =======================
+    # CLUSTER 1 – LOWEST
+    # =======================
+    with st.expander("🟠 Cluster 1 – Lowest Customers"):
+        st.markdown("""
+**Penjelasan:**  
+Cluster ini berisi pelanggan dengan **nilai belanja rendah**, **jarang membeli**,  
+dan **sudah lama tidak melakukan transaksi**. Mereka memiliki risiko churn yang tinggi  
+dan membutuhkan strategi khusus untuk membangkitkan kembali minat mereka.
+
+**Aksi yang Disarankan:**  
+1. Kampanye *re-engagement* (email, WhatsApp, notifikasi)  
 2. Promo agresif seperti diskon besar atau gratis ongkir  
 3. Rekomendasi produk berdasarkan pembelian terakhir  
 4. Survei singkat untuk mengetahui alasan pelanggan tidak kembali  
         """)
 
     # =======================
-    # CLUSTER 1
-    # =======================
-    with st.expander("🟠 Cluster 1 – Best Customers"):
-        st.markdown("""
-**Penjelasan:**  
-Cluster ini merupakan pelanggan dengan nilai belanja tertinggi, frekuensi pembelian tinggi, dan aktivitas transaksi terbaru.  
-Mereka adalah kontributor utama pendapatan dan aset paling berharga bagi bisnis.
-
-**Aksi yang Disarankan:**  
-1. VIP treatment (akses awal produk baru, customer service prioritas)  
-2. Hadiah eksklusif, bonus poin, atau cashback premium  
-3. Program referral karena mereka cenderung merekomendasikan brand  
-4. Komunikasi personal untuk menjaga loyalitas jangka panjang  
-        """)
-
-    # =======================
-    # CLUSTER 2
+    # CLUSTER 2 – POTENTIAL
     # =======================
     with st.expander("🟢 Cluster 2 – Potential Customers"):
         st.markdown("""
 **Penjelasan:**  
-Cluster ini terdiri dari pelanggan baru atau pelanggan dengan nilai belanja masih kecil,  
-namun menunjukkan aktivitas transaksi terbaru dan memiliki potensi berkembang.
+Cluster ini terdiri dari pelanggan baru atau pelanggan dengan **nilai belanja masih kecil**,  
+namun menunjukkan **aktivitas transaksi terbaru**. Mereka memiliki potensi besar  
+untuk berkembang menjadi pelanggan loyal jika diarahkan dengan tepat.
 
 **Aksi yang Disarankan:**  
 1. Welcome voucher atau diskon pembelian kedua  
 2. Edukasi produk dan rekomendasi awal  
 3. Upselling ringan untuk meningkatkan nilai belanja  
-4. Follow-up pasca pembelian untuk membangun engagement  
+4. Follow-up pasca pembelian untuk membangun engagement sejak awal  
         """)
 
     # =======================
-    # CLUSTER 3
+    # CLUSTER 3 – ACTIVE
     # =======================
     with st.expander("🔴 Cluster 3 – Active Customers"):
         st.markdown("""
 **Penjelasan:**  
-Cluster ini berisi pelanggan yang cukup sering berbelanja, nilai belanja menengah, dan masih aktif.  
-Mereka merupakan pelanggan inti yang dapat ditingkatkan menjadi pelanggan loyal bernilai tinggi.
+Cluster ini berisi pelanggan yang **cukup sering berbelanja**, memiliki **nilai belanja menengah**,  
+dan masih **aktif bertransaksi**. Mereka merupakan pelanggan inti yang dapat dipacu  
+menjadi pelanggan loyal dengan kontribusi pendapatan yang lebih besar.
 
 **Aksi yang Disarankan:**  
 1. Program loyalitas bertingkat (misal: Silver → Gold)  
